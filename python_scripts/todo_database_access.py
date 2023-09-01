@@ -117,7 +117,7 @@ class DatabaseAccess:
 
 
     ### Tasks
-    def insert_task(self, task: Task, person: Person, tags: List[Tag]) -> Task:
+    def insert_task(self, task: Task) -> Task:
         '''Inserts task into database'''
         
         param_dict = {
@@ -125,7 +125,7 @@ class DatabaseAccess:
             'task_name': task.task_name,
             'start_date': task.start_date,
             'end_date': task.end_date,
-            'person_id': person.person_id,
+            'person_id': task.person_id,
             'task_status': task.task_status
         }
         cur = self.sql_connect.cursor()
@@ -133,12 +133,25 @@ class DatabaseAccess:
         VALUES 
         (:task_id, :task_name, :start_date, :end_date, :person_id, :task_status)""", param_dict)
         self.sql_connect.commit()
-        id = cur.lastrowid
+        task_id = cur.lastrowid
+        print(task_id)
         
-        
+        cur.execute("""SELECT
+            t.task_id,
+            p.person_name,
+            p.person_id
+        FROM
+            task AS t 
+        JOIN person AS p ON t.person_id = p.person_id
+        WHERE t.task_id = ? """, (task_id, ))
+        res = cur.fetchone()
+        print(res)
+        person = Person(person_name = res[1], person_id = res[2])
+
+        tags = task.tags
         task_tag_input = []
         for tag in tags:
-            tag_tupl = (id, tag.tag_id)
+            tag_tupl = (task_id, tag.tag_id)
             task_tag_input.append(tag_tupl)        
 
         cur.executemany("""INSERT INTO task_tag

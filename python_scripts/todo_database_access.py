@@ -21,7 +21,7 @@ class DatabaseAccess:
         id = cur.lastrowid
         cur.close()
 
-        return Person(person_id = id, person_name = person.name)
+        return Person(person_id = id, person_name = person.person_name)
 
     def read_person(self, id: int) -> Person:
         '''Reads specific name and id of a specific person'''
@@ -145,7 +145,6 @@ class DatabaseAccess:
         JOIN person AS p ON t.person_id = p.person_id
         WHERE t.task_id = ? """, (task_id, ))
         res = cur.fetchone()
-        print(res)
         person = Person(person_name = res[1], person_id = res[2])
 
         tags = task.tags
@@ -267,8 +266,7 @@ class DatabaseAccess:
         finished_tasks.append(unfinished_task)
 
         cur.close()
-        return finished_tasks
-            
+        return finished_tasks        
 
     def update_task(self, task: Task) -> Task:
         '''Updates specific task in the database'''
@@ -339,13 +337,83 @@ class DatabaseAccess:
         print(cur.fetchall())
 
 
+    def show_not_done_task(self):
+        '''Shows not done tasks'''
+        cur = self.sql_connect.cursor()
+        cur.execute("SELECT * FROM task WHERE NOT task_status = 'done' ")
+        print(cur.fetchall())
+
+
+   
+
+    def show_person_tasks(self, person_id: int) -> List[Task]:
+        '''Shows all tasks of a specific person'''
+
+        cur = self.sql_connect.cursor()
+        cur.execute("""SELECT 
+	        t.task_id,
+            t.task_name,
+            t.start_date,
+            t.end_date,
+            p.person_id,
+            p.person_name,
+            t.task_status,
+            ta.tag_id,
+            ta.tag_name
+            
+            FROM
+                task AS t
+            LEFT JOIN task_tag AS tt ON t.task_id = tt.task_id 
+            LEFT JOIN person AS p ON t.person_id = p.person_id 
+            LEFT JOIN tag AS ta ON ta.tag_id = tt.tag_id 
+            WHERE t.person_id = ?; """, (person_id, ))
+
+        res = cur.fetchall()
+        finished_tasks = []
+        unfinished_task = None
+        unifinished_tags = []
+        current_task = None
+        current_id = None
+        previous_id = None
+        for item in res:
+            current_id = item[0]        
+
+            if previous_id != current_id and unfinished_task != None:    
+                current_task.tags += unifinished_tags
+                finished_tasks.append(unfinished_task)
+
+            if current_id == previous_id:
+                not_first_tag = Tag(tag_id = item[7], tag_name = item[8])
+                unifinished_tags.append(not_first_tag)               
+
+            else:
+                person = Person(person_id = item[4], person_name = item[5])
+                fist_tag = [Tag(tag_id = item[7], tag_name = item[8])]
+                
+                current_task = Task(
+                    task_id = item[0], 
+                    task_name = item[1], 
+                    start_date = item[2], 
+                    end_date = item[3], 
+                    person = person, 
+                    task_status = item[6],
+                    tags = fist_tag
+                )
+                unfinished_task = current_task
+                unifinished_tags = []
+                previous_id = current_id
+
+        current_task.tags += unifinished_tags
+        finished_tasks.append(unfinished_task)
+
+        cur.close()
+        return finished_tasks
+
+##To Do dodelat show urgent tasks
+
     def show_urgent_tasks(sql_cursor: sqlite3.Cursor):
-        '''Shows task with the closest due date'''
-        pass
-
-
-
-
+            '''Shows task with the closest due date'''
+            pass
 
 
 

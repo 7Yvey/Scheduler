@@ -44,9 +44,6 @@ class Task:
         end_date = {self.end_date},
         person_id = {self.person_id},
         task_status = {self.task_status}""" 
-       
-
-
 
 class TaskTag:
     '''Description of task and tags'''

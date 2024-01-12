@@ -21,6 +21,7 @@ CREATE TABLE task(
 	start_date TEXT,
 	end_date TEXT ,
 	person_id INTEGER NOT NULL,
+	task_status TEXT,
 	FOREIGN KEY (person_id) REFERENCES person (person_id)
 );
 

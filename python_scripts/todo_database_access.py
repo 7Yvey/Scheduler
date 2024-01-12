@@ -1,5 +1,6 @@
 
 import sqlite3
+from datetime import date, time, datetime
 from typing import List, Tuple, Dict
 from todo_classes import Person, Task, Tag, TaskTag
 
@@ -409,11 +410,44 @@ class DatabaseAccess:
         cur.close()
         return finished_tasks
 
-##To Do dodelat show urgent tasks
+## show urgent tasks - not yet finished 
 
-    def show_urgent_tasks(sql_cursor: sqlite3.Cursor):
-            '''Shows task with the closest due date'''
-            pass
+    def show_urgent_tasks(self):
+        '''Shows task with the closest due date'''
+        cur = self.sql_connect.cursor()
+        cur.execute("""SELECT 
+	        t.task_id,
+	        t.task_name,
+	        t.start_date,
+	        t.end_date,
+	        p.person_id,
+	        p.person_name,
+	        t.task_status,
+	        ta.tag_id,
+	        ta.tag_name
+	
+	        FROM
+		    task as t
+	        LEFT JOIN task_tag AS tt ON t.task_id = tt.task_id 
+	        LEFT JOIN person AS p ON p.person_id = t.person_id 
+	        LEFT JOIN tag AS ta ON tt.tag_id = ta.tag_id
+	        WHERE task_status != 'done' 
+	        ORDER BY end_date ASC""" )
+        res = cur.fetchall()
+        first_task = res[0]
+        print(first_task, first_task[3])
+
+        for task in res:
+            date_str = task[3]
+            date_format = '%Y-%m-%d'
+            today_date = date.today()
+            due_date = datetime.strptime(date_str, date_format)
+            # day_diffence = due_date - today_date
+            print(today_date, due_date)
+
+            # if day_diffence <= 2:
+            #     print(f"allert, {task}")
+
 
 
 

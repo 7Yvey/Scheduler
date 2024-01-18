@@ -1,19 +1,15 @@
-DROP TABLE tag;
 
-CREATE TABLE tag (
+CREATE TABLE tag(
 	tag_id INTEGER PRIMARY KEY,
-	tag_name TEXT NOT NULL,
+	tag_name TEXT NOT NULL
 );
 
-DROP TABLE person;
 
-CREATE TABLE person (
+CREATE TABLE person(
 	person_id INTEGER PRIMARY KEY,
-	person_name TEXT NOT NULL,
+	person_name TEXT NOT NULL
 );
 
-
-DROP TABLE task;
 
 CREATE TABLE task(
 	task_id INTEGER PRIMARY KEY,
@@ -24,8 +20,6 @@ CREATE TABLE task(
 	task_status TEXT,
 	FOREIGN KEY (person_id) REFERENCES person (person_id)
 );
-
-DROP TABLE task_tag;
 
 CREATE TABLE task_tag (
 	task_id INTEGER NOT NULL,

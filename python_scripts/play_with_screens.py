@@ -1,10 +1,15 @@
+import glob
 import sqlite3
 from todo_database_access import DatabaseAccess
 from todo_classes import Person, Task, Tag, TaskTag
 from BasicScreens import Screen, EndScreen 
 from PeopleScreens import PeopleScreen, ShowPersonScreen, InitialScreen, AddPersonScreen, DelPersonScreen
 
-database = "/home/Yvey/Documents/SQL/TODO/todo.db"
+
+files = glob.glob('database/*.db')
+
+database  = files[0]
+
 con = sqlite3.connect(database)
 access = DatabaseAccess(con)
  
